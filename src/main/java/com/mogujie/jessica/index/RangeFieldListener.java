@@ -10,6 +10,7 @@ import com.mogujie.jessica.util.Bits;
 import com.mogujie.jessica.util.OpenBitSet;
 
 /**
+ * TODO 当invertedIndexer 压缩的时候 range 缓存也要发生变化<br/>
  * 目前只支持int类型的rangQuery
  * 
  * @author xuanxi
@@ -25,7 +26,6 @@ public class RangeFieldListener
     public RangeFieldListener(RangeFieldListener rangeFieldListener)
     {
         this.dwpt = rangeFieldListener.dwpt;
-        // TODO 初始化
     }
 
     public RangeFieldListener(InvertedIndexer dwpt)
@@ -89,7 +89,7 @@ public class RangeFieldListener
     /**
      * 有新的数据进来 开始放入ranges中
      */
-    public void newValue(int docId,String field, String term)
+    public void newValue(int docId, String field, String term)
     {
         List<RangeDo> list = fieldRanges.get(field);
         Integer termValue = Integer.parseInt(term);

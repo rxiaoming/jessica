@@ -2,10 +2,14 @@ package com.mogujie.jessica.index;
 
 import static com.mogujie.jessica.store.PostingListStore.INT_SLICE_SIZE;
 
+import org.apache.log4j.Logger;
+
 import com.mogujie.jessica.service.thrift.TToken;
 import com.mogujie.jessica.store.Pointer;
+import com.mogujie.jessica.store.PostingList;
 import com.mogujie.jessica.store.PostingListStore;
 import com.mogujie.jessica.util.AttributeSource;
+import com.mogujie.jessica.util.Bits;
 import com.mogujie.jessica.util.BytesRef;
 import com.mogujie.jessica.util.BytesRefHash;
 import com.mogujie.jessica.util.CharTermAttribute;
@@ -14,18 +18,107 @@ import com.mogujie.jessica.util.TermToBytesRefAttribute;
 
 public class InvertedIndexPerField
 {
+    private final static Logger logger = Logger.getLogger(InvertedIndexPerField.class);
     private final SingleTokenAttributeSource singleToken = new SingleTokenAttributeSource();
     private TermToBytesRefAttribute termAtt;
     private BytesRef termBytesRef;
     private final BytesRefHash bytesHash;
     public final ParallelPostingsArray parallelArray;
     private final PostingListStore plStore;
+    private int maxTermId = 0;
 
     public InvertedIndexPerField(InvertedIndexer writer)
     {
         bytesHash = new BytesRefHash(writer.termPool);
         plStore = writer.plStore;
         parallelArray = new ParallelPostingsArray(4);
+    }
+
+    public InvertedIndexPerField(InvertedIndexer writer, InvertedIndexPerField oldPerField, int[] old2doc, int maxDoc)
+    {
+        bytesHash = oldPerField.bytesHash;
+        plStore = writer.plStore;
+        ParallelPostingsArray oldparallelArray = oldPerField.parallelArray;
+        PostingListStore oldPlStore = oldPerField.plStore;
+        parallelArray = new ParallelPostingsArray(4);
+
+        for (; maxTermId <= oldPerField.maxTermId; maxTermId++)
+        {
+            // 为新的term创建一个postingList 初始大小为2
+            int pointer = plStore.newTerm();
+            Pointer p = new Pointer(pointer);
+            p = new Pointer(p.poolIdx, p.sliceIdx, 1);
+            // 初始化term的freqProx指针 指向刚刚分配好的内存地址
+            parallelArray.freqProxStarts[maxTermId] = pointer;
+            parallelArray.freqProxUptos[maxTermId] = p.pointer;
+
+            p = new Pointer(oldparallelArray.freqProxStarts[maxTermId]);
+            int nextFreqProxPointer = new Pointer(p.poolIdx, p.sliceIdx, 1).pointer;
+            // 获得了pointer 检查该位置处的数据是否已经安全发布 如果没有安全发布
+            IntBlockPool intBlockPool;
+            // 当前数据在当前blcok中的索引位置
+            int intUptoStart;
+            // 当前buffer在block中的索引
+            int bufferIdx;
+            // 当前buffer
+            int[] buffer;
+            // 当前数据在buffer中的索引
+            int startIdx;
+            // 数据存储信息
+            int freqProx;
+
+            while (true)
+            {
+                p = new Pointer(nextFreqProxPointer);
+                // 获得当前slice所在的block pool
+                intBlockPool = oldPlStore.intBlockPools[p.poolIdx];
+                // 当前slice在该intBlockPool中intUptoStart第一个存储freqProx的位置
+                intUptoStart = p.sliceIdx * PostingListStore.INT_SLICE_SIZE[p.poolIdx] + p.offsetIdx;
+
+                bufferIdx = intUptoStart >>> InvertedIndexer.INT_BLOCK_SHIFT;
+                buffer = intBlockPool.buffers[bufferIdx];
+                startIdx = intUptoStart & InvertedIndexer.INT_BLOCK_MASK;
+                // 如果当前存储的是指针 即当前Slice的最有一个位置 将nextFreqProxPointer指向当前指针
+                if (p.offsetIdx == PostingListStore.INT_SLICE_SIZE[p.poolIdx] - 1)
+                {
+                    nextFreqProxPointer = buffer[startIdx];
+                    continue;
+                }
+                // 当前的数据
+                freqProx = buffer[startIdx];
+                if (freqProx == 0)
+                {// 已经没有数据了 哪儿出了异常
+                    System.out.println("reset, no more data!");
+                    break;
+                } else
+                {
+                    // 当前的文档Id
+                    int _docID = freqProx >>> 8;
+                    int _position = freqProx & 0xFF;
+                    if (_docID > maxDoc)
+                    {
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug("compact more data here!");
+                        }
+                        break;
+                    }
+
+                    if (old2doc[_docID] == -1)
+                    {
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug("old doc " + _docID + " was mark deleted");
+                        }
+                        continue;
+                    }
+
+                    int value = (old2doc[_docID] << 8) | (_position & 0xFF);
+                    writeInt(maxTermId, value);
+                }
+            }
+        }
+
     }
 
     public int getTermId(String term)
@@ -75,6 +168,7 @@ public class InvertedIndexPerField
     void newTerm(final int termId, final int docId, final TToken tToken)
     {
         parallelArray.termFreqs[termId]++;
+        maxTermId = termId;
         writeProxFreq(termId, docId, tToken.position);
     }
 

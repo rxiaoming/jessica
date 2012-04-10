@@ -1,8 +1,10 @@
 package com.mogujie.jessica.index;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -11,8 +13,8 @@ import org.apache.log4j.Logger;
 import com.mogujie.jessica.service.thrift.TDocument;
 import com.mogujie.jessica.service.thrift.TField;
 import com.mogujie.jessica.service.thrift.TToken;
-import com.mogujie.jessica.store.VersionBits;
 import com.mogujie.jessica.store.PostingListStore;
+import com.mogujie.jessica.store.VersionBits;
 import com.mogujie.jessica.util.Bits;
 import com.mogujie.jessica.util.ByteBlockPool;
 import com.mogujie.jessica.util.ByteBlockPool.DirectAllocator;
@@ -21,7 +23,7 @@ import com.mogujie.jessica.util.RamUsageEstimator;
 public class InvertedIndexer
 {
     private final static Logger logger = Logger.getLogger(InvertedIndexer.class);
-    private volatile int maxDocCount;
+    private volatile int maxDoc;
     private final AtomicLong bytesUsed;
     public final PostingListStore plStore;
     private final DirectAllocator allocator = new DirectAllocator();
@@ -40,6 +42,43 @@ public class InvertedIndexer
         rangeFieldListener = new RangeFieldListener(this);
     }
 
+    public InvertedIndexer(InvertedIndexer oldInvertedIndexer)
+    {
+        bytesUsed = oldInvertedIndexer.bytesUsed;
+        termPool = oldInvertedIndexer.termPool;
+        plStore = new PostingListStore(this);
+        rangeFieldListener = new RangeFieldListener(this);
+        // 开始拷贝old dwpt到新的dwpt中来
+        int maxDocId = oldInvertedIndexer.maxDoc;
+
+        // step 1: 将老旧文档的对应关系标注出来
+        Bits fakeBits = oldInvertedIndexer.liveDocs(maxDocId);
+        int uid = 0;
+        int[] old2doc = new int[1 << 24];// 旧的文档对应新文档的位置
+        Arrays.fill(old2doc, -1);
+        // 将已经删除的docId剔除掉
+        for (int i = 0; i < maxDocId; i++)
+        {
+            if (fakeBits.get(i))
+            {
+                uid = oldInvertedIndexer.uid2docMap.get(i);
+                doc2uidArray[maxDoc] = uid;
+                uid2docMap.put(uid, maxDoc);
+                old2doc[i] = maxDoc;
+                maxDoc++;
+            }
+        }
+
+        for (Entry<String, InvertedIndexPerField> entry : oldInvertedIndexer.invertedIndexPerFields.entrySet())
+        {
+            String field = entry.getKey();
+            InvertedIndexPerField oldPerField = entry.getValue();
+            InvertedIndexPerField invertedIndexPerField = new InvertedIndexPerField(this, oldPerField, old2doc, maxDocId);
+            invertedIndexPerFields.put(field, invertedIndexPerField);
+        }
+
+    }
+
     public void add(TDocument document)
     {
         internalAdd(document);
@@ -47,7 +86,7 @@ public class InvertedIndexer
 
     private void internalAdd(TDocument document)
     {
-        int docId = ++maxDocCount;
+        int docId = maxDoc + 1;
         int objectId = document.object_id;
 
         setDocUid(docId, objectId);
@@ -69,7 +108,7 @@ public class InvertedIndexer
                 rangeFieldListener.newValue(docId, name, tToken.value);
             }
         }
-
+        maxDoc = docId;
     }
 
     public void setDocUid(int docId, int uid)
@@ -117,7 +156,7 @@ public class InvertedIndexer
 
     public int maxDoc()
     {
-        return maxDocCount;
+        return maxDoc;
     }
 
     public InvertedIndexPerField getIndexPerField(String field)

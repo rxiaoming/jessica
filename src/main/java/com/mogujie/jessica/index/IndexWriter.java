@@ -66,6 +66,7 @@ public class IndexWriter
      */
     public void compact()
     {
+        indexer = new InvertedIndexer(indexer);
     }
 
     private class IndexWriterThread extends Thread
