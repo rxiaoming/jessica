@@ -18,12 +18,10 @@ package com.mogujie.jessica.query.matcher;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NavigableMap;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
 import com.mogujie.jessica.query.AndQuery;
 import com.mogujie.jessica.query.DifferenceQuery;
 import com.mogujie.jessica.query.DocTermMatch;

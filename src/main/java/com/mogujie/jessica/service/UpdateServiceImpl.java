@@ -19,7 +19,7 @@ import org.apache.thrift.server.TServer;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 
-import com.mogujie.jessica.index.MIndexWriter;
+import com.mogujie.jessica.index.IndexWriter;
 import com.mogujie.jessica.journal.Journal;
 import com.mogujie.jessica.scorer.SimpleScorer;
 import com.mogujie.jessica.service.thrift.Doc;
@@ -34,13 +34,13 @@ public class UpdateServiceImpl implements Iface
     private static final Logger log = Logger.getLogger(UpdateServiceImpl.class);
     private TServer server;
     private String ip;
-    private MIndexWriter indexWriter;
+    private IndexWriter indexWriter;
     private ExecutorService executor;
     private int port;
     private SimpleBitcaskStore bitcaskStore;
     private Journal journal;
 
-    public UpdateServiceImpl(MIndexWriter indexWriter, SimpleBitcaskStore bitcaskStore,Journal journal, String ip, int port)
+    public UpdateServiceImpl(IndexWriter indexWriter, SimpleBitcaskStore bitcaskStore,Journal journal, String ip, int port)
     {
         this.indexWriter = indexWriter;
         this.bitcaskStore = bitcaskStore;

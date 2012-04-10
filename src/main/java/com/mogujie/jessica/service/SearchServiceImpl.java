@@ -11,21 +11,22 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
-import com.mogujie.jessica.index.MIndexWriter;
+import com.mogujie.jessica.index.IndexWriter;
+import com.mogujie.jessica.index.InvertedIndexer;
 import com.mogujie.jessica.networking.SimpleServer;
 import com.mogujie.jessica.query.Query;
 import com.mogujie.jessica.query.QueryNode;
 import com.mogujie.jessica.query.matcher.TermBasedQueryMatcher;
 import com.mogujie.jessica.results.SimpleUids;
 import com.mogujie.jessica.scorer.SimpleScorer;
-import com.mogujie.jessica.search.MTermMatcher;
+import com.mogujie.jessica.search.JessicaTermMatcher;
 import com.mogujie.jessica.service.thrift.ResultHit;
 import com.mogujie.jessica.service.thrift.SearchRequest;
 import com.mogujie.jessica.service.thrift.SearchResponse;
 import com.mogujie.jessica.service.thrift.SearchService.Iface;
 import com.mogujie.jessica.service.thrift.SearchService.Processor;
-import com.mogujie.storeage.SimpleBitcaskStore;
 import com.mogujie.jessica.util.TimSort;
+import com.mogujie.storeage.SimpleBitcaskStore;
 
 /**
  * 搜索接口
@@ -38,11 +39,11 @@ public class SearchServiceImpl implements Iface
     private static final Logger logger = Logger.getLogger(SearchServiceImpl.class);
     private String ip;
     private int port;
-    private MIndexWriter indexWriter;
+    private IndexWriter indexWriter;
     private SimpleServer server;
     private SimpleBitcaskStore bitcaskStore;
 
-    public SearchServiceImpl(MIndexWriter indexWriter, SimpleBitcaskStore bitcaskStore, String ip, int port)
+    public SearchServiceImpl(IndexWriter indexWriter, SimpleBitcaskStore bitcaskStore, String ip, int port)
     {
         this.indexWriter = indexWriter;
         this.bitcaskStore = bitcaskStore;
@@ -91,9 +92,9 @@ public class SearchServiceImpl implements Iface
             String json = searchRequest.getQuery();
             // 将query字符串转化为queryNode
             QueryNode root = QueryNode.buildQueryNode(json, true, searchRequest.getQtime());
-            // RAMReader ramReader = indexWriter.getRamReader();
-            int[] doc2idArray = null;// indexWriter.getDwpt().getDoc2Ids();
-            MTermMatcher termMatcher = new MTermMatcher(null);
+            InvertedIndexer indexer = indexWriter.getIndexer();
+            int[] doc2idArray = indexer.getDocUids();
+            JessicaTermMatcher termMatcher = new JessicaTermMatcher(indexer);
             Query query = new Query(root, "");
             TermBasedQueryMatcher matcher = new TermBasedQueryMatcher(termMatcher, doc2idArray);
             SimpleUids uids = matcher.getAllMatches(query, searchRequest.getLimit() + searchRequest.getOffset());

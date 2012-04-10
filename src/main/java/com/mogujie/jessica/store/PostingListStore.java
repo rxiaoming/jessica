@@ -35,19 +35,18 @@ public class PostingListStore
     public final static int[] INT_SLICE_SIZE = new int[] { 1 << 2, 1 << 4, 1 << 7, 1 << 11 };
     public final static int[] INT_SLICE_SIZE_MASK = new int[] { (1 << 2) - 1, (1 << 4) - 1, (1 << 7) - 1, (1 << 11) - 1 };
     public final static int[] INT_SLICE_SIZE_SHIFT = new int[] { 2, 4, 7, 11 };
-    final public InvertedIndexer docWriter;
+    final public InvertedIndexer indexer;
     final public IntBlockPool[] intBlockPools;
     public int terms = 0;
 
-    // TODO postingListStore的int block应该不从docWriter中获得 因为会常常被回收
-    public PostingListStore(InvertedIndexer docWriter)
+    public PostingListStore(InvertedIndexer indexer)
     {
         intBlockPools = new IntBlockPool[INT_BLOCK_LEVEL];
         for (int i = 0; i < INT_BLOCK_LEVEL; i++)
         {
-            intBlockPools[i] = new IntBlockPool(docWriter);
+            intBlockPools[i] = new IntBlockPool(indexer);
         }
-        this.docWriter = docWriter;
+        this.indexer = indexer;
     }
 
     public int newTerm()

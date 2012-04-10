@@ -19,7 +19,6 @@ import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TNonblockingServerSocket;
 
 import com.mogujie.jessica.MSearcher;
-import com.mogujie.jessica.index.MIndexWriter;
 import com.mogujie.jessica.service.UpdateServiceImpl.UpdateServiceThreadFactory;
 import com.mogujie.jessica.service.thrift.AdminService.Iface;
 import com.mogujie.jessica.service.thrift.AdminService.Processor;

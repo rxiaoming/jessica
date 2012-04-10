@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.mogujie.jessica.index.MIndexWriter;
+import com.mogujie.jessica.index.IndexWriter;
 import com.mogujie.jessica.journal.Journal;
 import com.mogujie.jessica.service.AdminServiceImpl;
 import com.mogujie.jessica.service.SearchServiceImpl;
@@ -25,7 +25,7 @@ public class MSearcher
 {
     private final static Logger logger = Logger.getLogger(MSearcher.class);
     private boolean isRecover = false;
-    private MIndexWriter indexWriter;
+    private IndexWriter indexWriter;
     private Journal journal;
     private UpdateServiceImpl updateService;
     private SearchServiceImpl searchService;
@@ -75,7 +75,7 @@ public class MSearcher
             String journalRecover = properties.getProperty("journal.recover", defaultJournalRecover);
 
             final MSearcher ms = MSearcher.getInstance();
-            final MIndexWriter indexWriter = new MIndexWriter();
+            final IndexWriter indexWriter = new IndexWriter();
             final SimpleBitcaskStore bitcaskStore = new SimpleBitcaskStore(new File(storeDir));
             final Journal journal = new Journal(new File(journalDir));
 
@@ -150,12 +150,12 @@ public class MSearcher
         adminService.shutdown();
     }
 
-    public MIndexWriter getIndexWriter()
+    public IndexWriter getIndexWriter()
     {
         return indexWriter;
     }
 
-    public void setIndexWriter(MIndexWriter indexWriter)
+    public void setIndexWriter(IndexWriter indexWriter)
     {
         this.indexWriter = indexWriter;
     }

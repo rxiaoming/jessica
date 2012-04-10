@@ -4,33 +4,26 @@ import java.util.Arrays;
 
 public final class IntBlockPool extends IntBlocks
 {
+    public int bufferUpto = -1;
+    public int intUpto = InvertedIndexer.INT_BLOCK_SIZE;
+    public int[] buffer;
+    public int intOffset = -InvertedIndexer.INT_BLOCK_SIZE;
 
-    public int bufferUpto = -1; // Which buffer we are upto
-    public int intUpto = InvertedIndexer.INT_BLOCK_SIZE; // Where we
-                                                         // are in head
-                                                         // buffer
+    final private InvertedIndexer indexer;
 
-    public int[] buffer; // Current head buffer
-    public int intOffset = -InvertedIndexer.INT_BLOCK_SIZE; // Current
-                                                            // head
-                                                            // offset
-
-    final private InvertedIndexer docWriter;
-
-    public IntBlockPool(InvertedIndexer docWriter)
+    public IntBlockPool(InvertedIndexer indexer)
     {
         super(new int[10][]);
-        this.docWriter = docWriter;
+        this.indexer = indexer;
     }
 
     public void reset()
     {
         if (bufferUpto != -1)
         {
-            // Reuse first buffer
             if (bufferUpto > 0)
             {
-                docWriter.recycleIntBlocks(buffers, 1, bufferUpto - 1);
+                indexer.recycleIntBlocks(buffers, 1, bufferUpto - 1);
                 Arrays.fill(buffers, 1, bufferUpto, null);
             }
             bufferUpto = 0;
@@ -48,7 +41,7 @@ public final class IntBlockPool extends IntBlocks
             System.arraycopy(buffers, 0, newBuffers, 0, buffers.length);
             buffers = newBuffers;
         }
-        buffer = buffers[1 + bufferUpto] = docWriter.getIntBlock();
+        buffer = buffers[1 + bufferUpto] = indexer.getIntBlock();
         bufferUpto++;
 
         intUpto = 0;

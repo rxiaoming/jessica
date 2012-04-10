@@ -18,11 +18,9 @@ import com.mogujie.jessica.util.ByteBlockPool;
 import com.mogujie.jessica.util.ByteBlockPool.DirectAllocator;
 import com.mogujie.jessica.util.RamUsageEstimator;
 
-public class InvertedIndexer implements Indexer
+public class InvertedIndexer
 {
     private final static Logger logger = Logger.getLogger(InvertedIndexer.class);
-    private static final int HASH_INIT_SIZE = 4;
-
     private volatile int maxDocCount;
     private final AtomicLong bytesUsed;
     final PostingListStore plStore;
@@ -31,21 +29,17 @@ public class InvertedIndexer implements Indexer
     private final Map<Integer, Integer> uid2docMap = new HashMap<Integer, Integer>();
     private final int doc2uidArray[] = new int[1 << 24];// 64M
     private final int delDocIds[] = new int[1 << 24];// 64M
-    private final IntBlockPool intPool;
-    ByteBlockPool termPool;
-    private final int numPostingInt = 2;
-    private MRangeFieldListener rangeFieldListener;
+    final ByteBlockPool termPool;
+    private RangeFieldListener rangeFieldListener;
 
     public InvertedIndexer()
     {
         bytesUsed = new AtomicLong(0);
-        intPool = new IntBlockPool(this);
         termPool = new ByteBlockPool(allocator);
         plStore = new PostingListStore(this);
-        rangeFieldListener = new MRangeFieldListener(this);
+        rangeFieldListener = new RangeFieldListener(this);
     }
 
-    @Override
     public void add(TDocument document)
     {
         internalAdd(document);
@@ -55,6 +49,8 @@ public class InvertedIndexer implements Indexer
     {
         int docId = ++maxDocCount;
         int objectId = document.object_id;
+
+        setDocUid(docId, objectId);
 
         for (TField tField : document.getFields())
         {
@@ -66,14 +62,25 @@ public class InvertedIndexer implements Indexer
             {
                 invertedIndexPerField = new InvertedIndexPerField(this);
                 invertedIndexPerFields.put(name, invertedIndexPerField);
-
             }
             for (TToken tToken : tks)
             {
                 invertedIndexPerField.process(tToken, docId);
+                rangeFieldListener.newValue(docId, name, tToken.value);
             }
         }
 
+    }
+
+    public void setDocUid(int docId, int uid)
+    {
+        doc2uidArray[docId] = uid;
+        Integer oldDocId = uid2docMap.get(uid);
+        if (oldDocId != null)
+        {
+            delDocIds[oldDocId] = docId;
+        }
+        uid2docMap.put(uid, docId);
     }
 
     /**
@@ -112,6 +119,7 @@ public class InvertedIndexer implements Indexer
     {
         return maxDocCount;
     }
+
     /**
      * 获得一个特定的rangeQuery
      * 
@@ -123,5 +131,10 @@ public class InvertedIndexer implements Indexer
     public Bits getRange(String field, String termFrom, String termTo)
     {
         return rangeFieldListener.getRange(field, Integer.parseInt(termFrom), Integer.parseInt(termTo));
+    }
+
+    public int[] getDocUids()
+    {
+        return doc2uidArray;
     }
 }

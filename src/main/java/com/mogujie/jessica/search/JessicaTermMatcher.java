@@ -11,11 +11,11 @@ import com.mogujie.jessica.util.DocIdSetIterator;
 import com.mogujie.jessica.util.SkippableIterable;
 import com.mogujie.jessica.util.SkippableIterator;
 
-public class MTermMatcher implements TermMatcher
+public class JessicaTermMatcher implements TermMatcher
 {
     private final InvertedIndexer indexer;
 
-    public MTermMatcher(InvertedIndexer indexer)
+    public JessicaTermMatcher(InvertedIndexer indexer)
     {
         this.indexer = indexer;
     }
@@ -30,7 +30,7 @@ public class MTermMatcher implements TermMatcher
             @Override
             public SkippableIterator<DocTermMatch> iterator()
             {
-                return new MTermSkippableIterator(postingList);
+                return new TermSkippableIterator(postingList);
             }
         };
     }

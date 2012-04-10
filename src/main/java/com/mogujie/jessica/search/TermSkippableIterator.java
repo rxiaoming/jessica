@@ -8,14 +8,14 @@ import com.mogujie.jessica.query.DocTermMatch;
 import com.mogujie.jessica.store.PostingList;
 import com.mogujie.jessica.util.AbstractSkippableIterator;
 
-public class MTermSkippableIterator extends AbstractSkippableIterator<DocTermMatch>
+public class TermSkippableIterator extends AbstractSkippableIterator<DocTermMatch>
 {
-    private final static Logger logger = Logger.getLogger(MTermSkippableIterator.class);
+    private final static Logger logger = Logger.getLogger(TermSkippableIterator.class);
     private final PostingList postingList;
     private int nextId = PostingList.NO_MORE_DOCS;
     private DocTermMatch m = null;
 
-    public MTermSkippableIterator(PostingList postingList)
+    public TermSkippableIterator(PostingList postingList)
     {
         this.postingList = postingList;
     }

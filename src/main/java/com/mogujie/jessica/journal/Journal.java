@@ -19,7 +19,7 @@ import org.apache.thrift.TSerializer;
 import org.apache.thrift.protocol.TBinaryProtocol;
 
 import com.google.protobuf.ByteString;
-import com.mogujie.jessica.index.MIndexWriter;
+import com.mogujie.jessica.index.IndexWriter;
 import com.mogujie.jessica.scorer.SimpleScorer;
 import com.mogujie.jessica.service.thrift.TDocument;
 import com.mogujie.storeage.bitcask.BitCask;
@@ -105,15 +105,15 @@ public class Journal
      * 
      * @throws IOException
      */
-    public void recover(MIndexWriter mIndexWriter) throws IOException
+    public void recover(IndexWriter mIndexWriter) throws IOException
     {
         log.info("start merge jouranl files!");
         bitCask.merge();
         log.info("start recover index from jouranl datas...");
-        bitCask.fold(new KeyValueIter<MIndexWriter>()
+        bitCask.fold(new KeyValueIter<IndexWriter>()
         {
             @Override
-            public MIndexWriter each(ByteString key, ByteString value, MIndexWriter mIndexWriter)
+            public IndexWriter each(ByteString key, ByteString value, IndexWriter mIndexWriter)
             {
                 TDeserializer dserializer = new TDeserializer(new TBinaryProtocol.Factory());
                 TDocument tDocument = new TDocument();
