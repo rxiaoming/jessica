@@ -1,7 +1,5 @@
 package com.mogujie.jessica.index;
 
-import java.io.Reader;
-
 import com.mogujie.jessica.service.thrift.TField;
 
 /**
