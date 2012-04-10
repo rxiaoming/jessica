@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import com.mogujie.jessica.util.ByteBlockPool.DirectAllocator;
 
-
 /**
  * {@link BytesRefHash} is a special purpose hash-map like data-structure
  * optimized for {@link BytesRef} instances. BytesRefHash maintains mappings of
@@ -30,7 +29,7 @@ import com.mogujie.jessica.util.ByteBlockPool.DirectAllocator;
  */
 public final class BytesRefHash
 {
-
+    public final static int NO_SUCH_TERM = Integer.MAX_VALUE;
     public static final int DEFAULT_CAPACITY = 16;
 
     // the following fields are needed by comparator,
@@ -262,6 +261,34 @@ public final class BytesRefHash
         clear(true);
         ords = null;
         bytesUsed.addAndGet(RamUsageEstimator.NUM_BYTES_INT * -hashSize);
+    }
+
+    public int get(BytesRef bytes, int code)
+    {
+        assert bytesStart != null : "Bytesstart is null - not initialized";
+        // final position
+        int hashPos = code & hashMask;
+        int e = ords[hashPos];
+        if (e != -1 && !equals(e, bytes))
+        {
+            // Conflict: keep searching different locations in
+            // the hash table.
+            final int inc = ((code >> 8) + code) | 1;
+            do
+            {
+                code += inc;
+                hashPos = code & hashMask;
+                e = ords[hashPos];
+            } while (e != -1 && !equals(e, bytes));
+        }
+
+        if (e == -1)
+        {
+            return NO_SUCH_TERM;
+        } else
+        {
+            return e;
+        }
     }
 
     /**

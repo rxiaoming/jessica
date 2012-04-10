@@ -5,7 +5,6 @@ import static com.mogujie.jessica.store.PostingListStore.INT_SLICE_SIZE;
 import com.mogujie.jessica.service.thrift.TToken;
 import com.mogujie.jessica.store.Pointer;
 import com.mogujie.jessica.store.PostingListStore;
-import com.mogujie.jessica.store.PostingListStore;
 import com.mogujie.jessica.util.AttributeSource;
 import com.mogujie.jessica.util.BytesRef;
 import com.mogujie.jessica.util.BytesRefHash;
@@ -19,15 +18,23 @@ public class InvertedIndexPerField
     private TermToBytesRefAttribute termAtt;
     private BytesRef termBytesRef;
     private final BytesRefHash bytesHash;
-    private final ParallelPostingsArray parallelArray;
+    public final ParallelPostingsArray parallelArray;
     private final PostingListStore plStore;
-    private int uniqueTermCount = 0;
 
     public InvertedIndexPerField(InvertedIndexer writer)
     {
         bytesHash = new BytesRefHash(writer.termPool);
         plStore = writer.plStore;
         parallelArray = new ParallelPostingsArray(4);
+    }
+
+    public int getTermId(String term)
+    {
+        final SingleTokenAttributeSource st = new SingleTokenAttributeSource();
+        st.reinit(term, 0, term.length());
+        final TermToBytesRefAttribute ta = st.getAttribute(TermToBytesRefAttribute.class);
+        BytesRef tbr = ta.getBytesRef();
+        return bytesHash.get(tbr, ta.fillBytesRef());
     }
 
     public void process(final TToken tToken, final int docId)
@@ -69,20 +76,12 @@ public class InvertedIndexPerField
     {
         parallelArray.termFreqs[termId]++;
         writeProxFreq(termId, docId, tToken.position);
-        uniqueTermCount++;
-        captureTerm(termId, docId, tToken);
-    }
-
-    // TODO cache
-    void captureTerm(int termID, int docID, final TToken tToken)
-    {
     }
 
     void addTerm(final int termId, final int docId, final TToken tToken)
     {
         parallelArray.termFreqs[termId]++;
         writeProxFreq(termId, docId, tToken.position);
-        captureTerm(termId, docId, tToken);
     }
 
     // 将当前term的文档Id 位置信息写入到postingListStore当中

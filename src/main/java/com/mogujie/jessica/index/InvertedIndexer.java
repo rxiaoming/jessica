@@ -23,7 +23,7 @@ public class InvertedIndexer
     private final static Logger logger = Logger.getLogger(InvertedIndexer.class);
     private volatile int maxDocCount;
     private final AtomicLong bytesUsed;
-    final PostingListStore plStore;
+    public final PostingListStore plStore;
     private final DirectAllocator allocator = new DirectAllocator();
     private final ConcurrentHashMap<String, InvertedIndexPerField> invertedIndexPerFields = new ConcurrentHashMap<String, InvertedIndexPerField>();
     private final Map<Integer, Integer> uid2docMap = new HashMap<Integer, Integer>();
@@ -118,6 +118,11 @@ public class InvertedIndexer
     public int maxDoc()
     {
         return maxDocCount;
+    }
+
+    public InvertedIndexPerField getIndexPerField(String field)
+    {
+        return invertedIndexPerFields.get(field);
     }
 
     /**
