@@ -47,7 +47,7 @@ public class InvertedIndexer
         bytesUsed = oldInvertedIndexer.bytesUsed;
         termPool = oldInvertedIndexer.termPool;
         plStore = new PostingListStore(this);
-        rangeFieldListener = new RangeFieldListener(this);
+
         // 开始拷贝old dwpt到新的dwpt中来
         int maxDocId = oldInvertedIndexer.maxDoc;
 
@@ -68,6 +68,8 @@ public class InvertedIndexer
                 maxDoc++;
             }
         }
+
+        rangeFieldListener = new RangeFieldListener(this, oldInvertedIndexer.rangeFieldListener, old2doc, maxDocId);
 
         for (Entry<String, InvertedIndexPerField> entry : oldInvertedIndexer.invertedIndexPerFields.entrySet())
         {

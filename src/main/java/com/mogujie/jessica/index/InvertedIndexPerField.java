@@ -6,10 +6,8 @@ import org.apache.log4j.Logger;
 
 import com.mogujie.jessica.service.thrift.TToken;
 import com.mogujie.jessica.store.Pointer;
-import com.mogujie.jessica.store.PostingList;
 import com.mogujie.jessica.store.PostingListStore;
 import com.mogujie.jessica.util.AttributeSource;
-import com.mogujie.jessica.util.Bits;
 import com.mogujie.jessica.util.BytesRef;
 import com.mogujie.jessica.util.BytesRefHash;
 import com.mogujie.jessica.util.CharTermAttribute;

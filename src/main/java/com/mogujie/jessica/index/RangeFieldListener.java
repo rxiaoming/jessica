@@ -2,6 +2,7 @@ package com.mogujie.jessica.index;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -19,18 +20,39 @@ import com.mogujie.jessica.util.OpenBitSet;
 public class RangeFieldListener
 {
     private final static Logger logger = Logger.getLogger(RangeFieldListener.class);
-    final InvertedIndexer dwpt;
+    final InvertedIndexer indexer;
     final private ConcurrentHashMap<String, OpenBitSet> ranges = new ConcurrentHashMap<String, OpenBitSet>();
     final private ConcurrentHashMap<String, List<RangeDo>> fieldRanges = new ConcurrentHashMap<String, List<RangeDo>>();
 
-    public RangeFieldListener(RangeFieldListener rangeFieldListener)
+    /**
+     * 将旧的range数据转移到新的range中
+     * 
+     * @param indexer
+     * @param rangeFieldListener
+     */
+    public RangeFieldListener(InvertedIndexer indexer, RangeFieldListener rangeFieldListener, int[] old2doc, int maxDoc)
     {
-        this.dwpt = rangeFieldListener.dwpt;
+        this.indexer = indexer;
+        fieldRanges.putAll(rangeFieldListener.fieldRanges);
+        for (Entry<String, OpenBitSet> entry : rangeFieldListener.ranges.entrySet())
+        {
+            OpenBitSet oldBits = entry.getValue();
+            OpenBitSet bits = new OpenBitSet(1 << 24);
+            for (int i = 1; i <= maxDoc; i++)
+            {
+                if (old2doc[i] > 0 && oldBits.fastGet(i))
+                {
+                    bits.fastSet(old2doc[i]);
+                }
+            }
+            ranges.put(entry.getKey(), bits);
+        }
+
     }
 
-    public RangeFieldListener(InvertedIndexer dwpt)
+    public RangeFieldListener(InvertedIndexer indexer)
     {
-        this.dwpt = dwpt;
+        this.indexer = indexer;
     }
 
     public synchronized void newRange(RangeDo rangeDo)
