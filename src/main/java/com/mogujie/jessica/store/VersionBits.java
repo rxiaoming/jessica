@@ -3,12 +3,12 @@ package com.mogujie.jessica.store;
 import com.mogujie.jessica.util.Bits;
 
 
-public class FakeBits implements Bits
+public class VersionBits implements Bits
 {
     int[] _delDocs;
     int _currentVersion;
 
-    public FakeBits(int[] delDocsId, int maxDocId)
+    public VersionBits(int[] delDocsId, int maxDocId)
     {
         this._delDocs = delDocsId;
         this._currentVersion = maxDocId;

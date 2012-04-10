@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import com.mogujie.jessica.service.thrift.TDocument;
 import com.mogujie.jessica.service.thrift.TField;
 import com.mogujie.jessica.service.thrift.TToken;
-import com.mogujie.jessica.store.FakeBits;
+import com.mogujie.jessica.store.VersionBits;
 import com.mogujie.jessica.store.PostingListStore;
 import com.mogujie.jessica.util.Bits;
 import com.mogujie.jessica.util.ByteBlockPool;
@@ -90,7 +90,7 @@ public class InvertedIndexer
      */
     public Bits liveDocs(int maxDocId)
     {
-        FakeBits newLiveDocs = new FakeBits(delDocIds, maxDocId);
+        VersionBits newLiveDocs = new VersionBits(delDocIds, maxDocId);
         return newLiveDocs;
     }
 
