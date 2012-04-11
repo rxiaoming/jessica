@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.mogujie.jessica.results.SimpleUids;
+import com.mogujie.jessica.query.SimpleUids;
 import com.mogujie.jessica.service.thrift.Doc;
 
 /**

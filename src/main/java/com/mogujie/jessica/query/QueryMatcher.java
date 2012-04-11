@@ -1,7 +1,6 @@
 package com.mogujie.jessica.query;
 
 import com.google.common.base.Predicate;
-import com.mogujie.jessica.results.SimpleUids;
 
 public interface QueryMatcher
 {

@@ -3,7 +3,7 @@ package com.mogujie.jessica.query.matcher;
 import com.mogujie.jessica.index.InvertedIndexPerField;
 import com.mogujie.jessica.index.InvertedIndexer;
 import com.mogujie.jessica.query.DocTermMatch;
-import com.mogujie.jessica.search.TermSkippableIterator;
+import com.mogujie.jessica.query.TermSkippableIterator;
 import com.mogujie.jessica.store.PostingList;
 import com.mogujie.jessica.util.AbstractSkippableIterable;
 import com.mogujie.jessica.util.AbstractSkippableIterator;
