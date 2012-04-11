@@ -80,110 +80,30 @@ public class AdminServiceImpl implements Iface
         server.stop();
     }
 
-    /**
-     * 手动调用索引compact
-     */
+    public static class AdminServiceThreadFactory implements ThreadFactory
+    {
+        public Thread newThread(Runnable runnable)
+        {
+            Thread thread = new Thread(runnable);
+            thread.setName("AdminService-pool-thread-" + threaCounter.incrementAndGet());
+            thread.setDaemon(false);
+            return thread;
+        }
+
+        private final static AtomicLong threaCounter = new AtomicLong(0);
+    }
+
     @Override
     public String purgeIndex() throws TException
     {
+        return null;
+    }
+
+    @Override
+    public String compactIndex() throws TException
+    {
         msearch.getIndexWriter().triggerCompact();
         return "ok";
-    }
-
-    @Override
-    public String expungeDeletes() throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String optimize(int numSegs) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String flushDocumentStore() throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String setBlockSize(long size) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String refreshDiskReader() throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String setBatchSize(long batchSize) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String setMaxBatchSize(long maxBatchSize) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String setSearchCacheSize(long cacheSize) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String setSearchCacheExpireTime(long ms) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String setQueryCacheSize(long cacheSize) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String setStoreCacheSize(long cacheSize) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String setSortParams(String type, int favMax, int maxEditor, int timeWeight, int favWeight, int editorWeight) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public String enableUpdateOperation(boolean enable) throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public Map<Long, Long> qps() throws TException
-    {
-        return null;
-    }
-
-    @Override
-    public long currentQps() throws TException
-    {
-        return 0;
-    }
-
-    @Override
-    public long numSearches() throws TException
-    {
-        return 0;
     }
 
     @Override
@@ -196,19 +116,6 @@ public class AdminServiceImpl implements Iface
     public String jvmstatus() throws TException
     {
         return null;
-    }
-
-    public static class AdminServiceThreadFactory implements ThreadFactory
-    {
-        public Thread newThread(Runnable runnable)
-        {
-            Thread thread = new Thread(runnable);
-            thread.setName("AdminService-pool-thread-" + threaCounter.incrementAndGet());
-            thread.setDaemon(false);
-            return thread;
-        }
-
-        private final static AtomicLong threaCounter = new AtomicLong(0);
     }
 
 }
