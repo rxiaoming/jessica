@@ -96,23 +96,8 @@ public class SimpleScorer implements Comparator<Long>
 
     private long getValue(long created, long cfav, long zfavctu, long zeditor)
     {
-        zeditor = zeditor - NEGATIVE_TO_POSITIVE;
-        cfav = zfavctu - NEGATIVE_TO_POSITIVE + cfav;
 
-        zeditor = zeditor > maxEditor ? maxEditor : zeditor;
-        long fav = 0;
-        if (zeditor >= 0)
-        {// up
-            fav = cfav + zeditor * editorWeight;
-            fav = fav > maxFav ? maxFav : fav;
-        } else
-        {// down
-            cfav = cfav > maxFav ? maxFav : cfav;
-            fav = cfav + zeditor * editorWeight;
-        }
-
-        final long v2 = created * timeWeight + fav * favWeight;
-        return v2;
+        return 0;
     }
 
     @Override
