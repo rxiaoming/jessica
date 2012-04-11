@@ -7,7 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.mogujie.jessica.store.Pointer;
+import com.mogujie.jessica.store.PostingListStore;
 import com.mogujie.jessica.util.Bits;
+import com.mogujie.jessica.util.BytesRef;
 import com.mogujie.jessica.util.OpenBitSet;
 
 /**
@@ -77,34 +80,89 @@ public class RangeFieldListener
         }
         list.add(rangeDo);
 
-        // FIXME 初始化
-        /*
-         * try {
-         * 
-         * RAMReader ramReader = dwpt.getReader();
-         * 
-         * Terms terms = ramReader.terms(rangeDo.field); TermsEnum termsEnum =
-         * terms.iterator();
-         * 
-         * BytesRef startBoundary = new BytesRef(rangeDo.start + ""); BytesRef
-         * endBoundary = new BytesRef(rangeDo.end + "");
-         * 
-         * while (termsEnum.next() != null) { BytesRef bytesRef =
-         * termsEnum.term(); logger.error("term:" + bytesRef.utf8ToString()); if
-         * (bytesRef.compareTo(startBoundary) >= 0 &&
-         * bytesRef.compareTo(endBoundary) <= 0) { Term term = new
-         * Term(rangeDo.field, bytesRef); int nextId =
-         * DocIdSetIterator.NO_MORE_DOCS; int docId = nextId; try {
-         * DocsAndPositionsEnum tp =
-         * terms.docsAndPositions(ramReader.getLiveDocs(), term.bytes(), null);
-         * do { docId = tp.advance(nextId); if (logger.isDebugEnabled()) {
-         * logger.debug("fieldRang  doc:" + docId); } if (docId !=
-         * DocIdSetIterator.NO_MORE_DOCS) { int rawId = tp.docID();
-         * bits.set(rawId); nextId = rawId - 1; } } while (docId !=
-         * DocIdSetIterator.NO_MORE_DOCS); } catch (IOException e) {
-         * logger.error(e.getMessage(), e); } } } } catch (IOException e) {
-         * logger.error(e.getMessage(), e); }
-         */
+        InvertedIndexPerField perField = indexer.getIndexPerField(rangeDo.field);
+        if (perField == null)
+        {
+            logger.error("no such field " + rangeDo.field + " to init range query!");
+            return;
+        }
+
+        int maxTerm = perField.maxTerm();
+        int maxDoc = indexer.maxDoc();
+        for (int i = 0; i <= maxTerm; i++)
+        {
+            int textStart = perField.parallelArray.textStarts[i];
+            BytesRef bytesRef = new BytesRef();
+            indexer.termPool.setBytesRef(bytesRef, textStart);
+            String term = bytesRef.utf8ToString();
+            int value = Integer.MAX_VALUE;
+            try
+            {
+                value = Integer.parseInt(term);
+
+            } catch (Exception e)
+            {
+                // ignore
+            }
+
+            if (value >= rangeDo.start && value <= rangeDo.end)
+            {
+                Pointer p = new Pointer(perField.parallelArray.freqProxStarts[i]);
+                int nextFreqProxPointer = new Pointer(p.poolIdx, p.sliceIdx, 1).pointer;
+                // 获得了pointer 检查该位置处的数据是否已经安全发布 如果没有安全发布
+                IntBlockPool intBlockPool;
+                // 当前数据在当前blcok中的索引位置
+                int intUptoStart;
+                // 当前buffer在block中的索引
+                int bufferIdx;
+                // 当前buffer
+                int[] buffer;
+                // 当前数据在buffer中的索引
+                int startIdx;
+                // 数据存储信息
+                int freqProx;
+
+                while (true)
+                {
+                    p = new Pointer(nextFreqProxPointer);
+                    // 获得当前slice所在的block pool
+                    intBlockPool = indexer.plStore.intBlockPools[p.poolIdx];
+                    // 当前slice在该intBlockPool中intUptoStart第一个存储freqProx的位置
+                    intUptoStart = p.sliceIdx * PostingListStore.INT_SLICE_SIZE[p.poolIdx] + p.offsetIdx;
+
+                    bufferIdx = intUptoStart >>> InvertedIndexer.INT_BLOCK_SHIFT;
+                    buffer = intBlockPool.buffers[bufferIdx];
+                    startIdx = intUptoStart & InvertedIndexer.INT_BLOCK_MASK;
+                    // 如果当前存储的是指针 即当前Slice的最有一个位置 将nextFreqProxPointer指向当前指针
+                    if (p.offsetIdx == PostingListStore.INT_SLICE_SIZE[p.poolIdx] - 1)
+                    {
+                        nextFreqProxPointer = buffer[startIdx];
+                        continue;
+                    }
+                    // 当前的数据
+                    freqProx = buffer[startIdx];
+                    if (freqProx == 0)
+                    {// 已经没有数据了 哪儿出了异常
+                        System.out.println("reset, no more data!");
+                        break;
+                    } else
+                    {
+                        // 当前的文档Id
+                        int docId = freqProx >>> 8;
+                        if (docId > maxDoc)
+                        {
+                            if (logger.isDebugEnabled())
+                            {
+                                logger.debug("compact more data here!");
+                            }
+                            break;
+                        }
+                        bits.fastSet(docId);
+                    }
+                }
+            }
+
+        }
 
     }
 

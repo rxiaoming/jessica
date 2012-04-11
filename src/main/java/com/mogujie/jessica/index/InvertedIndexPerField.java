@@ -119,6 +119,11 @@ public class InvertedIndexPerField
 
     }
 
+    public int maxTerm()
+    {
+        return maxTermId;
+    }
+
     public int getTermId(String term)
     {
         final SingleTokenAttributeSource st = new SingleTokenAttributeSource();
