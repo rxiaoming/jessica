@@ -13,6 +13,8 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
 
+import com.mogujie.jessica.util.Constants;
+
 /**
  * @project:杭州卷瓜网络有限公司搜索引擎
  * @date:2011-10-15
@@ -22,7 +24,7 @@ import org.jboss.netty.channel.socket.oio.OioServerSocketChannelFactory;
  */
 public class SimpleServer
 {
-    private static final Logger log = Logger.getLogger(SimpleServer.class);
+    private static final Logger log = Logger.getLogger(Constants.LOG_SEARCH);
     private TProcessor processor;
     private ChannelFactory factory;
     private String ip;

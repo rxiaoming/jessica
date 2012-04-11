@@ -7,9 +7,11 @@ import org.jboss.netty.handler.timeout.IdleState;
 import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
 import org.jboss.netty.handler.timeout.IdleStateEvent;
 
+import com.mogujie.jessica.util.Constants;
+
 public class SimpleIdleHandler extends IdleStateAwareChannelHandler
 {
-    private static final Logger log = Logger.getLogger(SimpleIdleHandler.class);
+    private static final Logger log = Logger.getLogger(Constants.LOG_SEARCH);
 
     public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) throws Exception
     {

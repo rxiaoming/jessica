@@ -11,12 +11,13 @@ import com.mogujie.jessica.util.AttributeSource;
 import com.mogujie.jessica.util.BytesRef;
 import com.mogujie.jessica.util.BytesRefHash;
 import com.mogujie.jessica.util.CharTermAttribute;
+import com.mogujie.jessica.util.Constants;
 import com.mogujie.jessica.util.OffsetAttribute;
 import com.mogujie.jessica.util.TermToBytesRefAttribute;
 
 public class InvertedIndexPerField
 {
-    private final static Logger logger = Logger.getLogger(InvertedIndexPerField.class);
+    private final static Logger logger = Logger.getLogger(Constants.LOG_INDEX);
     private final SingleTokenAttributeSource singleToken = new SingleTokenAttributeSource();
     private TermToBytesRefAttribute termAtt;
     private BytesRef termBytesRef;

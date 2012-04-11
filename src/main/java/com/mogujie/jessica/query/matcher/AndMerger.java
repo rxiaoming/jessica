@@ -8,6 +8,7 @@ import com.mogujie.jessica.query.RawMatch;
 import com.mogujie.jessica.store.PostingList;
 import com.mogujie.jessica.util.AbstractSkippableIterable;
 import com.mogujie.jessica.util.AbstractSkippableIterator;
+import com.mogujie.jessica.util.Constants;
 import com.mogujie.jessica.util.SkippableIterator;
 
 /**
@@ -18,7 +19,7 @@ import com.mogujie.jessica.util.SkippableIterator;
  */
 class AndMerger extends AbstractSkippableIterable<RawMatch>
 {
-    private final static Logger logger = Logger.getLogger(AndMerger.class);
+    private final static Logger logger = Logger.getLogger(Constants.LOG_SEARCH);
     private List<SkippableIterator<RawMatch>> list;
 
     AndMerger(List<SkippableIterator<RawMatch>> list)

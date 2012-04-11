@@ -11,6 +11,8 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
+import com.mogujie.jessica.util.Constants;
+
 /**
  * @project:杭州卷瓜网络有限公司搜索引擎
  * @date:2011-10-15
@@ -20,7 +22,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
  */
 public class SimpleServerHandler extends SimpleChannelUpstreamHandler
 {
-    private static final Logger log = Logger.getLogger(SimpleServerHandler.class);
+    private static final Logger log = Logger.getLogger(Constants.LOG_SEARCH);
     private TProcessor processor;
     private TProtocolFactory protocolFactory;
     private int responseSize = 81920;

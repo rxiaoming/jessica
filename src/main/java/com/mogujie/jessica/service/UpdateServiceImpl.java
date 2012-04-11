@@ -27,11 +27,12 @@ import com.mogujie.jessica.service.thrift.ResultCode;
 import com.mogujie.jessica.service.thrift.TDocument;
 import com.mogujie.jessica.service.thrift.UpdateService.Iface;
 import com.mogujie.jessica.service.thrift.UpdateService.Processor;
+import com.mogujie.jessica.util.Constants;
 import com.mogujie.storeage.SimpleBitcaskStore;
 
 public class UpdateServiceImpl implements Iface
 {
-    private static final Logger log = Logger.getLogger(UpdateServiceImpl.class);
+    private static final Logger log = Logger.getLogger(Constants.LOG_UPDATE);
     private TServer server;
     private String ip;
     private IndexWriter indexWriter;

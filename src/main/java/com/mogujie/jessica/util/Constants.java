@@ -47,6 +47,13 @@ public final class Constants {
   public static final String OS_ARCH = System.getProperty("os.arch");
   public static final String OS_VERSION = System.getProperty("os.version");
   public static final String JAVA_VENDOR = System.getProperty("java.vendor");
+  
+  
+  public static final String LOG_ADMIN = "admin";
+  public static final String LOG_UPDATE = "update";
+  public static final String LOG_INDEX = "index";
+  public static final String LOG_SEARCH = "search";
+  public static final String LOG_STATUS = "status";
 
   // NOTE: this logic may not be correct; if you know of a
   // more reliable approach please raise it on java-dev!

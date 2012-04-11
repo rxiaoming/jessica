@@ -17,6 +17,8 @@ import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 
+import com.mogujie.jessica.util.Constants;
+
 /**
  * @project:杭州卷瓜网络有限公司搜索引擎
  * @date:2011-10-15
@@ -26,7 +28,7 @@ import org.jboss.netty.handler.execution.ExecutionHandler;
  */
 public class SimplePipelineFactory implements ChannelPipelineFactory
 {
-    private static final Logger logger = Logger.getLogger(SimplePipelineFactory.class);
+    private static final Logger logger = Logger.getLogger(Constants.LOG_SEARCH);
     private SimpleServerHandler handler;
     private int maxFrameSize = 512 * 1024;
     private Executor executor;

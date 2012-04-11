@@ -22,6 +22,7 @@ import com.google.protobuf.ByteString;
 import com.mogujie.jessica.index.IndexWriter;
 import com.mogujie.jessica.scorer.SimpleScorer;
 import com.mogujie.jessica.service.thrift.TDocument;
+import com.mogujie.jessica.util.Constants;
 import com.mogujie.storeage.bitcask.BitCask;
 import com.mogujie.storeage.bitcask.BitCaskFile;
 import com.mogujie.storeage.bitcask.BitCaskOptions;
@@ -36,7 +37,7 @@ import com.mogujie.storeage.bitcask.KeyValueIter;
  */
 public class Journal
 {
-    private static final Logger log = Logger.getLogger(Journal.class);
+    private static final Logger log = Logger.getLogger(Constants.LOG_ADMIN);
     private static final String SUFFIX = ".journal";
     private static final int DATA_BLOCK_SIZE = 64 * 1024 * 1024;// 64m
     private File journalDir;

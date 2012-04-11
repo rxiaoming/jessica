@@ -25,6 +25,7 @@ import com.mogujie.jessica.service.thrift.SearchRequest;
 import com.mogujie.jessica.service.thrift.SearchResponse;
 import com.mogujie.jessica.service.thrift.SearchService.Iface;
 import com.mogujie.jessica.service.thrift.SearchService.Processor;
+import com.mogujie.jessica.util.Constants;
 import com.mogujie.jessica.util.TimSort;
 import com.mogujie.storeage.SimpleBitcaskStore;
 
@@ -36,7 +37,7 @@ import com.mogujie.storeage.SimpleBitcaskStore;
  */
 public class SearchServiceImpl implements Iface
 {
-    private static final Logger logger = Logger.getLogger(SearchServiceImpl.class);
+    private static final Logger logger = Logger.getLogger(Constants.LOG_SEARCH);
     private String ip;
     private int port;
     private IndexWriter indexWriter;

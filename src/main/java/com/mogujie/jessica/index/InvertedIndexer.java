@@ -18,11 +18,12 @@ import com.mogujie.jessica.store.VersionBits;
 import com.mogujie.jessica.util.Bits;
 import com.mogujie.jessica.util.ByteBlockPool;
 import com.mogujie.jessica.util.ByteBlockPool.DirectAllocator;
+import com.mogujie.jessica.util.Constants;
 import com.mogujie.jessica.util.RamUsageEstimator;
 
 public class InvertedIndexer
 {
-    private final static Logger logger = Logger.getLogger(InvertedIndexer.class);
+    private final static Logger logger = Logger.getLogger(Constants.LOG_INDEX);
     private volatile int maxDoc;
     private final AtomicLong bytesUsed;
     public final PostingListStore plStore;
@@ -65,7 +66,7 @@ public class InvertedIndexer
                 doc2uidArray[maxDoc] = uid;
                 uid2docMap.put(uid, maxDoc);
                 old2doc[i] = maxDoc;
-                maxDoc++;
+                maxDoc = maxDoc + 1;
             }
         }
 

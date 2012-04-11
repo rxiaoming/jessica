@@ -22,11 +22,12 @@ import com.mogujie.jessica.MSearcher;
 import com.mogujie.jessica.service.UpdateServiceImpl.UpdateServiceThreadFactory;
 import com.mogujie.jessica.service.thrift.AdminService.Iface;
 import com.mogujie.jessica.service.thrift.AdminService.Processor;
+import com.mogujie.jessica.util.Constants;
 import com.mogujie.storeage.SimpleBitcaskStore;
 
 public class AdminServiceImpl implements Iface
 {
-    private static final Logger log = Logger.getLogger(AdminServiceImpl.class);
+    private static final Logger log = Logger.getLogger(Constants.LOG_ADMIN);
     private TServer server;
     private String ip;
     private ExecutorService executor;

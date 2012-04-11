@@ -11,6 +11,7 @@ import com.mogujie.jessica.store.Pointer;
 import com.mogujie.jessica.store.PostingListStore;
 import com.mogujie.jessica.util.Bits;
 import com.mogujie.jessica.util.BytesRef;
+import com.mogujie.jessica.util.Constants;
 import com.mogujie.jessica.util.OpenBitSet;
 
 /**
@@ -22,7 +23,7 @@ import com.mogujie.jessica.util.OpenBitSet;
  */
 public class RangeFieldListener
 {
-    private final static Logger logger = Logger.getLogger(RangeFieldListener.class);
+    private final static Logger logger = Logger.getLogger(Constants.LOG_INDEX);
     final InvertedIndexer indexer;
     final private ConcurrentHashMap<String, OpenBitSet> ranges = new ConcurrentHashMap<String, OpenBitSet>();
     final private ConcurrentHashMap<String, List<RangeDo>> fieldRanges = new ConcurrentHashMap<String, List<RangeDo>>();
