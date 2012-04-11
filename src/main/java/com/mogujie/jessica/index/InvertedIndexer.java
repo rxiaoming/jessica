@@ -95,8 +95,7 @@ public class InvertedIndexer
 
         for (TField tField : document.getFields())
         {
-            ThriftField tf = new ThriftField(tField);
-            List<TToken> tks = tf.tField.getTokens();
+            List<TToken> tks = tField.getTokens();
             String name = tField.name;
             InvertedIndexPerField invertedIndexPerField = invertedIndexPerFields.get(name);
             if (invertedIndexPerField == null)
