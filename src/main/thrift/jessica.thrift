@@ -46,25 +46,7 @@ service UpdateService
 service AdminService
 {
 	string  purgeIndex();
-	string  expungeDeletes();
-	string  optimize(1:i32 numSegs);
-	string  flushDocumentStore();
-	string  setBlockSize(1:i64 size);
-	string  refreshDiskReader();
-	
-	string  setBatchSize(1:i64 batchSize);
-	string  setMaxBatchSize(1:i64 maxBatchSize);
-	string  setSearchCacheSize(1:i64 cacheSize);
-	string  setSearchCacheExpireTime(1:i64 ms);
-	string  setQueryCacheSize(1:i64 cacheSize);
-	string  setStoreCacheSize(1:i64 cacheSize);
-
-	string setSortParams(1:string type, 2:i32 favMax, 3:i32 maxEditor, 4:i32 timeWeight, 5:i32 favWeight, 6:i32 editorWeight   );
-
-	string  enableUpdateOperation(1:bool enable);
-	map<i64,i64> qps();
-	i64   currentQps();
-	i64   numSearches();
+	string  compactIndex();
 	string status();
 	string jvmstatus();
 }
